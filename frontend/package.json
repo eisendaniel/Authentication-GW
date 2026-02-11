@@ -1,0 +1,33 @@
+{
+  "name": "t7",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@ionic/react": "^8.7.17",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-navigation/native": "^7.1.28",
+    "@react-navigation/native-stack": "^7.11.0",
+    "@supabase/supabase-js": "^2.93.3",
+    "expo": "~54.0.32",
+    "expo-asset": "~12.0.12",
+    "expo-file-system": "~19.0.21",
+    "expo-linear-gradient": "~15.0.8",
+    "expo-sqlite": "~16.0.10",
+    "expo-status-bar": "~3.0.9",
+    "ionicons": "^8.0.13",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-web": "^0.21.0"
+  },
+  "private": true
+}

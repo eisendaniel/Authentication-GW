@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, ScrollView, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { supabase } from "../../data/supabase";
 
 
 import ItemCard from "../../components/itemCard";
@@ -15,7 +17,21 @@ export default function Dashboard() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  const [registeredTids, setRegisteredTids] = useState([]);
+  const [selectedRegistered, setSelectedRegistered] = useState(false);
+
+
   const isLive = status === "live";
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error } = await supabase.from("product_info").select("tid");
+      if (error) { console.log("Supabase error", error); return; }
+      if (alive) setRegisteredTids((data ?? []).map(r => String(r.tid)));
+    })();
+    return () => { alive = false; };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -42,8 +58,12 @@ export default function Dashboard() {
               date={item.date}
               info={item.info}
               id={item.id}
+              registered={registeredTids.includes(String(item.id))}
+
 
               onPress={() => {
+                const isRegistered = registeredTids.includes(String(item.id));
+                setSelectedRegistered(isRegistered);
                 setSelectedItem(item);
                 setIsOpen(true);
               }}
@@ -54,8 +74,11 @@ export default function Dashboard() {
 
 
       <Modal visible={isOpen} animationType="slide" transparent>
-        {/*<ViewItem item={selectedItem} onClose={() => setIsOpen(false)} />*/}
-        <NewProduct item={selectedItem} onClose={() => setIsOpen(false)} />
+        {selectedRegistered ? (
+          <ViewItem item={selectedItem} onClose={() => setIsOpen(false)} />
+        ) : (
+          <NewProduct item={selectedItem} onClose={() => setIsOpen(false)} />
+        )}
 
       </Modal>
     </View>

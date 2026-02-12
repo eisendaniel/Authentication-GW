@@ -4,11 +4,11 @@ import AuthStatus from "../authStatus";
 import { formatDateTime } from "../../../utils/formatDateTime";
 
 
-export default function ItemCard({ auth, date, info, id, onPress }) {
+export default function ItemCard({ auth, date, info, id, onPress, registered }) {
     return (
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [styles.container, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.container, registered && styles.registered, pressed && styles.pressed]}
       >
         <View style={styles.top}>
           <Text style={styles.date}>{formatDateTime(date)}</Text>
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   container: {
    
     padding: 16,
-    backgroundColor: "white",
+    backgroundColor: "#D9D9D9",
     gap: 8,
     borderRadius: 16,
     justifyContent: "space-between",
@@ -80,4 +80,9 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",      
     maxWidth: "100%",
   },
+
+  registered: {
+    backgroundColor: "white",
+  },
+  
 });

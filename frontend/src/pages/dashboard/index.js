@@ -1,13 +1,18 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import { useState } from "react";
+
 
 import ItemCard from "../../components/itemCard";
 import useActiveTags from "../../hooks/useActiveTags";
 import StatusDot from "../../components/statusDot";
+import { ViewItem } from "../../components/viewItem";
 
 export default function Dashboard() {
   const { scans, status, error } = useActiveTags({ intervalMs: 1000 });
+
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const isLive = status === "live";
 
@@ -36,10 +41,20 @@ export default function Dashboard() {
               date={item.date}
               info={item.info}
               id={item.id}
+
+              onPress={() => {
+                setSelectedItem(item);
+                setIsOpen(true);
+              }}
             />
           ))}
         </ScrollView>
       )}
+
+
+      <Modal visible={isOpen} animationType="slide" transparent>
+        <ViewItem item={selectedItem} onClose={() => setIsOpen(false)} />
+      </Modal>
     </View>
   );
 }

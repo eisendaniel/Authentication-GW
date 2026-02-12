@@ -1,12 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import AuthStatus from "../authStatus";
 
 import { formatDateTime } from "../../../utils/formatDateTime";
 
 
-export default function ItemCard({ auth, date, info, id }) {
+export default function ItemCard({ auth, date, info, id, onPress }) {
     return (
-      <View style={styles.container}>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [styles.container, pressed && styles.pressed]}
+      >
         <View style={styles.top}>
           <Text style={styles.date}>{formatDateTime(date)}</Text>
             <AuthStatus auth={auth} />
@@ -17,7 +20,7 @@ export default function ItemCard({ auth, date, info, id }) {
         <View style={styles.bottom}>
           <Text style={styles.tag}>{id}</Text>
         </View>
-      </View>
+      </Pressable>
     );
   }
 
@@ -33,6 +36,10 @@ const styles = StyleSheet.create({
     width:160,
     height:200,
   
+  },
+  pressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
   },
 
   top:{

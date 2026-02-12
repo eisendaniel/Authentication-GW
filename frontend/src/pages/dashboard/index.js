@@ -7,6 +7,7 @@ import ItemCard from "../../components/itemCard";
 import useActiveTags from "../../hooks/useActiveTags";
 import StatusDot from "../../components/statusDot";
 import { ViewItem } from "../../components/viewItem";
+import { NewProduct } from "../../components/newProduct";
 
 export default function Dashboard() {
   const { scans, status, error } = useActiveTags({ intervalMs: 1000 });
@@ -53,7 +54,9 @@ export default function Dashboard() {
 
 
       <Modal visible={isOpen} animationType="slide" transparent>
-        <ViewItem item={selectedItem} onClose={() => setIsOpen(false)} />
+        {/*<ViewItem item={selectedItem} onClose={() => setIsOpen(false)} />*/}
+        <NewProduct item={selectedItem} onClose={() => setIsOpen(false)} />
+
       </Modal>
     </View>
   );

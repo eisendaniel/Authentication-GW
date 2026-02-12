@@ -1,12 +1,11 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { formatDateTime } from "../../../utils/formatDateTime";
 
 
 
 
-export function ViewItem({ item, onClose }) {
+export function NewProduct({ item, onClose }) {
     return (
       <View style={styles.container}>
         <View style={styles.card}>
@@ -27,11 +26,26 @@ export function ViewItem({ item, onClose }) {
           </View>
 
           <View style={styles.info}>
-              <Text style={styles.value}>This is the best wine in the world. Made by two cute couple in Malborough,NZ. Grapes are handpressed personally.</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Product description"
+                placeholderTextColor="#9AA0A6"
+                multiline
+              />
           </View>
-          <View style={styles.infoRow}>
-              <Text style={styles.valueBold}>New Zealand</Text>
-              <Text style={styles.valueBold}>18 Dec 1980</Text>
+          <View style={styles.info}>
+              <TextInput
+                style={[styles.input, styles.rowInput]}
+                placeholder="Origin"
+                placeholderTextColor="#9AA0A6"
+              />
+          </View>
+          <View style={styles.info}>
+              <TextInput
+                style={[styles.input, styles.rowInput]}
+                placeholder="Date"
+                placeholderTextColor="#9AA0A6"
+              />
           </View>
 
 
@@ -93,6 +107,25 @@ export function ViewItem({ item, onClose }) {
       },
       value: {
      
+      },
+
+      input: {
+        borderWidth: 1,
+        borderColor: "#E0E0E0",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        color: "#111111",
+        backgroundColor: "#FFFFFF",
+      },
+
+      textArea: {
+        minHeight: 80,
+        textAlignVertical: "top",
+      },
+
+      rowInput: {
+        flex: 1,
       },
 
       valueBold: {

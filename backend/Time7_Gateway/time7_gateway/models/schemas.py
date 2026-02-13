@@ -13,10 +13,8 @@ class ScanResult(BaseModel):
     auth: bool
     info: Optional[str] = None
 
-#Full Scan Event built from raw reader data stream
-class FullScanEvent(BaseModel):
-    epc: str
+# Authentication payload to be sent to IAS
+class AuthPayload(BaseModel):
     messageHex: str
     responseHex: str
     tidHex: str
-    tid: str

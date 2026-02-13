@@ -1,12 +1,11 @@
 import json
 import os
 from datetime import datetime, timezone
-from models.schemas import FullScanEvent #---NEW
+from models.schemas import AuthPayload #---NEW
 
 import httpx
 
 from time7_gateway.services.database import upsert_latest_tag
-from time7_gateway.services.database import upsert_full_tag #---NEW
 
 
 class ImpinjReaderClient:
@@ -46,20 +45,6 @@ async def run_reader_stream(app):
             tie = ev.get("tagInventoryEvent", {})
             tag_id = tie.get("epcHex")
 
-            #--------NEWCODE----------
-            t_a_r = tie.get("tagAuthenticationResponse", {})
-
-            f_s_e = FullScanEvent(
-                epc=tie.get("epc"), 
-                messageHex=t_a_r.get("messageHex"), 
-                responseHex=t_a_r.get("responseHex"), 
-                tidHex=t_a_r.get("tidHex"),
-                tid=tie.get("tid"))
-
-            
-
-            #-------ENDOFCODE---------
-
             if not tag_id:
                 continue
 
@@ -67,12 +52,27 @@ async def run_reader_stream(app):
 
             active_tags.sync_seen([tag_id], seen_at=seen_at)
 
+            #--------NEWCODE----------
+            auth_payload = tie.get("tagAuthenticationResponse")
+            if auth_payload:
+                this_auth_payload = AuthPayload(
+                    messageHex=auth_payload.get("messageHex"),
+                    responseHex=auth_payload.get("responseHex"),
+                    tidHex=auth_payload.get("tidHex")
+                )
+              # if data missing from auth_payload -> reject or skip lookupp
+              # else ias_lookup
+              # dict showing correct expected responses: challenge, tidHex --> expected response
+              # 3 cases: 1. not a modern tag; 2. correct and authed; 3. counterfit correct info but incorrect response
+            #Send this_auth_payload to IAS client for authentication.
+            #-------ENDOFCODE---------
+
+            
             # if its new tag
             if cache.get(tag_id) is None:
                 auth, info = ias_lookup(tag_id)
-                cache.set(tag_id, auth, info)
-                upsert_full_tag(f_s_e) #--NEW
-               # upsert_latest_tag(tag_id=tag_id, seen_at=seen_at, auth=auth, info=info)
+                cache.set(tag_id, auth, info)  
+                upsert_latest_tag(tag_id=tag_id, seen_at=seen_at, auth=auth, info=info)
 
     finally:
         await client.aclose()

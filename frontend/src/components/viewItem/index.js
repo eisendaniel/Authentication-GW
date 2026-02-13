@@ -3,6 +3,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { supabase } from "../../data/supabase";
 import SubmitButton from "../submitButton";
+import * as ImagePicker from "expo-image-picker";
+
+const BUCKET = "product-photos";
 
 export function ViewItem({ item, onClose }) {
   const [product, setProduct] = useState(null);
@@ -10,12 +13,13 @@ export function ViewItem({ item, onClose }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
-  //edit mode
+  // edit mode
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [draftDescription, setDraftDescription] = useState("");
   const [draftOrigin, setDraftOrigin] = useState("");
   const [draftProducedOn, setDraftProducedOn] = useState("");
+  const [imageUri, setImageUri] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -75,7 +79,8 @@ export function ViewItem({ item, onClose }) {
     setSaving(true);
     try {
       const tid = String(item.id);
-      const { error } = await supabase
+
+      const { error: infoError } = await supabase
         .from("product_info")
         .update({
           description: draftDescription || null,
@@ -84,7 +89,33 @@ export function ViewItem({ item, onClose }) {
         })
         .eq("tid", tid);
 
-      if (error) throw error;
+      if (infoError) throw infoError;
+
+      if (imageUri) {
+        const path = `${tid}/${Date.now()}.jpg`;
+        const blob = await (await fetch(imageUri)).blob();
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(BUCKET)
+          .upload(path, blob, { contentType: blob.type || "image/jpeg" });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicData } = supabase.storage
+          .from(BUCKET)
+          .getPublicUrl(uploadData.path);
+
+        const newUrl = publicData.publicUrl;
+
+        const { error: photoError } = await supabase
+          .from("product_photo")
+          .insert({ tid, photo_url: newUrl });
+
+        if (photoError) throw photoError;
+
+        setPhotoUrl(newUrl);
+        setImageUri(null);
+      }
 
       setProduct((p) =>
         p
@@ -96,12 +127,29 @@ export function ViewItem({ item, onClose }) {
             }
           : p
       );
+
       setIsEditing(false);
     } catch (e) {
       Alert.alert("Save failed", e?.message ?? String(e));
     } finally {
       setSaving(false);
     }
+  };
+
+  const pickImage = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission needed", "Allow photo access to pick an image.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
   return (
@@ -114,16 +162,28 @@ export function ViewItem({ item, onClose }) {
           <Pressable onPress={onClose} style={styles.closebtn}>
             <Ionicons name="close-outline" size={24} color="grey" />
           </Pressable>
-
         </View>
 
-        <View style={styles.imgBox}>
-          {photoUrl ? (
-            <Image source={{ uri: photoUrl }} style={styles.img} resizeMode="contain" />
-          ) : (
-            <Ionicons name="image-outline" size={28} color="#9AA0A6" />
-          )}
-        </View>
+
+        {isEditing ? (
+          <Pressable onPress={pickImage} style={styles.imgBox}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.img} resizeMode="contain" />
+            ) : photoUrl ? (
+              <Image source={{ uri: photoUrl }} style={styles.img} resizeMode="contain" />
+            ) : (
+              <Ionicons name="image-outline" size={28} color="#9AA0A6" />
+            )}
+          </Pressable>
+        ) : (
+          <View style={styles.imgBox}>
+            {photoUrl ? (
+              <Image source={{ uri: photoUrl }} style={styles.img} resizeMode="contain" />
+            ) : (
+              <Ionicons name="image-outline" size={28} color="#9AA0A6" />
+            )}
+          </View>
+        )}
 
         <View style={styles.infoRow}>
           <Text style={styles.label}>epc</Text>
@@ -182,11 +242,7 @@ export function ViewItem({ item, onClose }) {
         )}
 
         {isEditing ? (
-          <SubmitButton
-            label={saving ? "Saving..." : "Save"}
-            onPress={saveEdit}
-            disabled={saving}
-          />
+          <SubmitButton label={saving ? "Saving..." : "Save"} onPress={saveEdit} disabled={saving} />
         ) : null}
       </View>
     </View>
@@ -223,7 +279,7 @@ const styles = StyleSheet.create({
   editbtn: {},
 
   imgBox: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "white",
     height: 160,
     borderRadius: 8,
     overflow: "hidden",

@@ -46,25 +46,29 @@ async def run_reader_stream(app):
             tie = ev.get("tagInventoryEvent", {})
             tag_id = tie.get("tidHex")
             #epc = tie.get("epc")
-            #epcHex = tie.get("epcHex")
-
-            #epc = tie.get("epc")          
-            #epc_hex = tie.get("epcHex")   
-
+            epcHex = tie.get("epcHex")
+          
             if not tag_id:
                 continue
 
             seen_at = datetime.now(timezone.utc)
 
-            #tar = tie.get("tagAuthenticationResponse") or {}
-            #message_hex = tar.get("messageHex")
-            #response_hex = tar.get("responseHex")
-            #tar_tid_hex = tar.get("tidHex")
+            tar = tie.get("tagAuthenticationResponse") or {}
+            message_hex = tar.get("messageHex")
+            response_hex = tar.get("responseHex")
 
+            active_tags.sync_seen(
+                {tag_id:{
+                    "epcHex": epcHex,
+                    "message_hex": message_hex,
+                    "response_hex": response_hex,
 
-            active_tags.sync_seen([tag_id], seen_at=seen_at)
+                    }
+                }, 
+                seen_at=seen_at
+            )
 
-            # if its new tag
+            # if its new tag send to IAS
             if cache.get(tag_id) is None:
                 auth, info = ias_lookup(tag_id) ##send IAS parameter here
                 cache.set(tag_id, auth, info) ## IAS results

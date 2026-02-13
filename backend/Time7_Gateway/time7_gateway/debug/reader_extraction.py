@@ -27,8 +27,9 @@ def main() -> None:
             print(f"Count: {data.get('count', len(items))}\n")
 
             for t in items:
-                print(f"- {t.get('id')} | first={t.get('first_seen')} | last={t.get('last_seen')}")
-
+                #print(f"- {t.get('id')} | epcHex={t.get('epc_hex')} | first={t.get('first_seen')} | last={t.get('last_seen')}")
+                print(f"tid={t.get('id')} | epcHex={t.get('epc_hex')} | msgH={t.get('message_hex')} | resH={t.get('response_hex')}  ")
+                
             print("\nCTRL+C to stop.")
             time.sleep(REFRESH_SECONDS)
 

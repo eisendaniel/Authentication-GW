@@ -15,7 +15,7 @@ class TagInfoCache:
 
     #caches IAS results. Avoid repeating checking with IAS
 
-    def __init__(self, cache_ttl_hours: int = 24):
+    def __init__(self, cache_ttl_hours: int):
         self.cache_ttl = timedelta(hours=int(cache_ttl_hours))
         self._cache: Dict[str, TagInfo] = {}
 

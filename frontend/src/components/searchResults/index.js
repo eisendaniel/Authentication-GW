@@ -12,7 +12,7 @@ export function SearchResults({ }) {
       <View style={styles.card}>
 
         <View style={styles.imgBox}>
-            <Ionicons name="image-outline" size={28} color="#9AA0A6" />
+            <Ionicons name="image-outline" size={28} color="#FE751A" />
         </View>
 
         <View style={styles.infoRow}>

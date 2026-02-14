@@ -99,7 +99,7 @@ const handleRegister = async () => {
             {imageUri ? (
               <Image source={{ uri: imageUri }} style={styles.img} resizeMode="contain" />
             ) : (
-              <Ionicons name="image-outline" size={28} color="#9AA0A6" />
+              <Ionicons name="image-outline" size={28} color="#FE751A" />
             )}
           </Pressable>
 

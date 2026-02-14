@@ -46,6 +46,7 @@ def create_app() -> FastAPI:
     app.include_router(reader_stream_router, tags=["reader-stream-sim"])
     app.include_router(terminal_inject_router, prefix="/api/sim", tags=["reader-terminal-sim"])
     app.include_router(dashboard_router, prefix="/api", tags=["dashboard"])
+    
 
     # Debug endpoints
     app.include_router(debug_router)

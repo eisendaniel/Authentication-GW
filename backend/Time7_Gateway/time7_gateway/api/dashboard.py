@@ -1,5 +1,9 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Query
 from time7_gateway.models.schemas import ScanResult
+
+# Add search interface
+from time7_gateway.clients.supabase_client import get_supabase
+
 
 router = APIRouter()
 
@@ -27,3 +31,27 @@ def active_tags(request: Request):
         )
 
     return results
+
+# Add search interface for product_info table (by tid or epc)
+@router.get("/product-info/search")
+def search_product_info(q: str = Query(..., min_length=1)):
+    """
+    ONLY query product_info table by tid or epc (exact match).
+    Return: {found: bool, item: row|None}
+    """
+    q = q.strip()
+    sb = get_supabase()
+
+    # 1) tid match
+    r = sb.table("product_info").select("*").eq("tid", q).limit(1).execute()
+    rows = r.data or []
+    if rows:
+        return {"found": True, "item": rows[0]}
+
+    # 2) epc match
+    r = sb.table("product_info").select("*").eq("epc", q).limit(1).execute()
+    rows = r.data or []
+    if rows:
+        return {"found": True, "item": rows[0]}
+
+    return {"found": False, "item": None}

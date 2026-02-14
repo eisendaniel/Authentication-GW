@@ -2,28 +2,18 @@
 # Expo/Metro temp
 frontend/.tmp/
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
 
-# Virtual environment
-venv/
-.env
 
-# OS junk
-.DS_Store
+# ignore Expo/Metro temp
+frontend/.tmp/
+.tmp/
+metro-cache/
 
-# Logs
-*.log
-
-# IDE
-.vscode/
-.idea/
-
-# Uvicorn temp
-*.pid
-
+frontend.zip
+*.zip
+frontend/.tmp/
+.tmp/
+metro-cache/
 
 # dependencies
 node_modules/
@@ -64,3 +54,58 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.env
+
+# OS junk
+.DS_Store
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Uvicorn temp
+*.pid
+
+# Expo/Metro caches
+frontend/.tmp/
+**/metro-cache/
+**/.metro-cache/
+
+# macOS junk
+.DS_Store
+**/.DS_Store
+
+# python venv
+t7env/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+
+# env/swap files
+*.swp
+.env.local
+
+# temp
+frontend/.tmp/
+.tmp/
+metro-cache/
+
+# venv
+venv/
+.venv/
+t7env/

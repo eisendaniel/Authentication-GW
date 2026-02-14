@@ -35,10 +35,21 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.rowWrap}>
-        <Ionicons name="radio-outline" size={24} />
-        <Text style={styles.pageTitle}>Detected Items</Text>
-        <StatusDot live={isLive} />
+      <View style={styles.statusBar}>
+       <View style={styles.rowWrap}>
+          <Ionicons name="radio-outline" size={24} />
+          <Text style={styles.pageTitle}>Detected Items</Text>
+        </View>
+        <View style={styles.rowWrap}>
+          <View style={styles.statusPill}>
+            <Ionicons name="git-branch-outline" size={24} />
+            <StatusDot live={isLive} />
+          </View>
+          <View style={styles.statusPill}>
+            <Ionicons name="radio-outline" size={24} />
+            <StatusDot live={isLive} />
+          </View>
+        </View>
       </View>
 
       {status === "error" ? (
@@ -118,5 +129,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#888",
     marginTop: 24,
-  }
+  },
+
+  statusBar:{
+    flexDirection:"row",
+    justifyContent:"space-between"
+  },
+
+  statusPill:{
+    flexDirection:"row",
+    alignItems: "center",
+    backgroundColor: "white",
+    paddingVertical:4,
+    paddingHorizontal:16,
+    borderRadius:16,
+  },
 });

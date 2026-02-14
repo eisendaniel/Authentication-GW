@@ -11,7 +11,7 @@ export default function ItemCard({ auth, date, info, id, onPress, registered }) 
         style={({ pressed }) => [styles.container, registered && styles.registered, pressed && styles.pressed]}
       >
         <View style={styles.top}>
-          <Text style={styles.date}>{formatDateTime(date)}</Text>
+          <Text style={styles.date}>{formatDateTime(date).replace(", ", " ")}</Text>
             <AuthStatus auth={auth} />
         </View>
         <View style={styles.center}>

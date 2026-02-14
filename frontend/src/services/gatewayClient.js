@@ -30,3 +30,11 @@ function mustGetGatewayUrl() {
     );
     return await res.json();
   }
+
+  // Add function to search product info by EPC or TID
+  export async function searchProductInfo(q) {
+  const base = mustGetGatewayUrl();
+  const qq = encodeURIComponent(String(q ?? "").trim());
+  const res = await mustOk(await fetch(`${base}/api/product-info/search?q=${qq}`));
+  return await res.json();
+}

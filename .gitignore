@@ -8,3 +8,9 @@ frontend/.tmp/
 frontend/.tmp/
 .tmp/
 metro-cache/
+
+frontend.zip
+*.zip
+frontend/.tmp/
+.tmp/
+metro-cache/

@@ -27,7 +27,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, View, Pressable } from 
 import { Ionicons } from "@expo/vector-icons";
 
 import AuthStatus from "../../components/authStatus";
-import { formatDateTime } from "../../utils/formatDateTime";
+import { formatDateTime } from "../../../utils/formatDateTime";
 import { searchProductInfo } from "../../services/gatewayClient";
 
 export default function SearchPage() {

@@ -81,3 +81,7 @@ venv/
 frontend/.tmp/
 **/metro-cache/
 **/.metro-cache/
+
+# macOS junk
+.DS_Store
+**/.DS_Store

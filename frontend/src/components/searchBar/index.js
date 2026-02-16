@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View, TextInput, Pressable} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function SearchBar(){
+export default function SearchBar({ value = "", onChangeText, onSearch }){
+
+    const triggerSearch = () => {
+    onSearch?.(String(value ?? ""));
+  };
 
     return(
         <View style={styles.container}>
@@ -11,9 +15,16 @@ export default function SearchBar(){
                     style={[styles.input, {outlineStyle: 'none'}]}
                     placeholder="Enter epc or tid"
                     placeholderTextColor="grey"
+
+                    value={value}
+                    onChangeText={onChangeText}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="search"
+                    onSubmitEditing={triggerSearch}
                 
                 />
-                <Pressable>
+                <Pressable onPress={triggerSearch}>
                     <Ionicons name="search-outline" size={24} />
                 </Pressable>
             </View>

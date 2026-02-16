@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timezone
-from models.schemas import AuthPayload #---NEW
+from time7_gateway.models.schemas import AuthPayload #---NEW
 
 import httpx
 
@@ -24,6 +24,33 @@ class ImpinjReaderClient:
 
     async def aclose(self):
         await self._client.aclose()
+
+def handle_invalid_tag(
+    tag_id,
+    epcHex,
+    seen_at,
+    active_tags,
+    cache,
+    info_message
+):
+    auth_payload = "none"
+    auth = False
+    info = info_message
+
+    active_tags.sync_seen(
+        [tag_id],
+        seen_at=seen_at
+    )
+
+    cache.set(tag_id, auth, info)
+
+    upsert_latest_tag(
+        tag_id=tag_id,
+        seen_at=seen_at,
+        auth=auth,
+        info=info
+    )
+                
 
 
 async def run_reader_stream(app):
@@ -57,26 +84,43 @@ async def run_reader_stream(app):
             # Save timestamp as variable:
             seen_at = datetime.now(timezone.utc)
 
-            # --- Authentication Response ---
-            tarDict = tieDict.get("tagAuthenticationResponse") # a dict object holding authentication payload to be sent to IAS
+            # ----- TAG AUTHENTICATION RESPONSE INGESTION -----
+            tarDict = tieDict.get("tagAuthenticationResponse", {}) # a dict object holding authentication payload to be sent to IAS
             
-            # Save tagAuthenticationResponse variables:
-            messageHex=tarDict.get("messageHex"), #challenge that was sent to the tag, will always be included
-            responseHex=tarDict.get("responseHex"), #always will be included, but will be an empty string if failed/invalid
-            tidHex=tarDict.get("tidHex") #may be empty, if so, use the tag_id variable from above
-
-           # Checks:
-            if responseHex == "":
+            if not tarDict:
                 #authentication failed, display tag as invalid
-                auth = False
-                info = "Tag failed to generate response."
-                cache.set(tag_id, auth, info)
-                upsert_latest_tag(tag_id=tag_id, seen_at=seen_at, auth=auth, info=info) # Sending to database(?)
+                handle_invalid_tag(
+                    tag_id=tag_id,
+                    epcHex=epcHex,
+                    seen_at=seen_at,
+                    active_tags=active_tags,
+                    cache=cache,
+                    info_message="'tagAuthenticationResponse' not found.")
                 continue 
 
+            # Save tagAuthenticationResponse variables:
+            messageHex=tarDict.get("messageHex") # Challenge that was sent to the tag, will always be included.
+            responseHex=tarDict.get("responseHex") # Always will be included, but will be an empty string if failed/invalid.
+            tidHex=tarDict.get("tidHex") # May be empty, if so, use the tag_id variable from above.
+
+           # Final checks:
+            if responseHex == "":
+                #authentication failed, display tag as invalid
+                handle_invalid_tag(
+                    tag_id=tag_id,
+                    epcHex=epcHex,
+                    seen_at=seen_at,
+                    active_tags=active_tags,
+                    cache=cache,
+                    info_message="'responseHex' not found.")
+                continue
+
+            # If tidHex was not found inside tagAuthenticationResponse, use tag_id
             if not tidHex:
                 tidHex = tag_id
             
+
+            # ----- AUTHENTICATION RESPONSE VALID -----
             # Create auth_payload:
             auth_payload = AuthPayload(
                     messageHex=messageHex,
@@ -84,9 +128,9 @@ async def run_reader_stream(app):
                     tidHex=tidHex
                 )
             
-            # Create event object with auth_payload included
+            # Update active live tags
             active_tags.sync_seen(
-                {tag_id: auth_payload}, seen_at=seen_at)
+                [tag_id], seen_at=seen_at)
             
 
             # --- SENDING TO IAS ---

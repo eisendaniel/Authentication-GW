@@ -1,1 +1,5 @@
 t7env/
+
+# Metro/Expo temp cache
+frontend/.tmp/
+frontend/**/.tmp/

@@ -1,0 +1,110 @@
+# Expo/Metro temp
+frontend/.tmp/
+
+
+
+# ignore Expo/Metro temp
+frontend/.tmp/
+.tmp/
+metro-cache/
+
+frontend.zip
+*.zip
+frontend/.tmp/
+.tmp/
+metro-cache/
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.env
+
+# OS junk
+.DS_Store
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Uvicorn temp
+*.pid
+
+# Expo/Metro caches
+frontend/.tmp/
+**/metro-cache/
+**/.metro-cache/
+
+# macOS junk
+.DS_Store
+**/.DS_Store
+
+# python venv
+t7env/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+
+# env/swap files
+*.swp
+.env.local
+
+# temp
+frontend/.tmp/
+.tmp/
+metro-cache/
+
+# venv
+venv/
+.venv/
+t7env/

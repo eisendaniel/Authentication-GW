@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime, timezone
+from time7_gateway.models.schemas import AuthPayload #---NEW
 
 import httpx
 
@@ -24,6 +25,33 @@ class ImpinjReaderClient:
     async def aclose(self):
         await self._client.aclose()
 
+def handle_invalid_tag(
+    tag_id,
+    epcHex,
+    seen_at,
+    active_tags,
+    cache,
+    info_message
+):
+    auth_payload = "none"
+    auth = False
+    info = info_message
+
+    active_tags.sync_seen(
+        [tag_id],
+        seen_at=seen_at
+    )
+
+    cache.set(tag_id, auth, info)
+
+    upsert_latest_tag(
+        tag_id=tag_id,
+        seen_at=seen_at,
+        auth=auth,
+        info=info
+    )
+                
+
 
 async def run_reader_stream(app):
     reader_base_url = os.getenv("READER_BASE_URL", "").strip()
@@ -37,38 +65,85 @@ async def run_reader_stream(app):
     ias_lookup = app.state.ias_lookup
 
     try:
+        # Subscribe to data-stream
         async for ev in client.stream_events():
-
-            
-
+            # Skip if not a valid tagInventoryEvent
             if ev.get("eventType") != "tagInventory":
                 continue
-            tie = ev.get("tagInventoryEvent", {})
-            tag_id = tie.get("tidHex")
-            #epc = tie.get("epc")
-            #epcHex = tie.get("epcHex")
 
-            #epc = tie.get("epc")          
-            #epc_hex = tie.get("epcHex")   
+            # Save required variables:
+            tieDict = ev.get("tagInventoryEvent", {}) # a dict object holding the variables needed for Authentication
 
+            tag_id = tieDict.get("tidHex") # Unique tag identification number
+            epcHex = tieDict.get("epcHex") # Product information number
+
+            # Skip if no tag_id:
             if not tag_id:
                 continue
-
+            
+            # Save timestamp as variable:
             seen_at = datetime.now(timezone.utc)
 
-            #tar = tie.get("tagAuthenticationResponse") or {}
-            #message_hex = tar.get("messageHex")
-            #response_hex = tar.get("responseHex")
-            #tar_tid_hex = tar.get("tidHex")
+            # ----- TAG AUTHENTICATION RESPONSE INGESTION -----
+            tarDict = tieDict.get("tagAuthenticationResponse", {}) # a dict object holding authentication payload to be sent to IAS
+            
+            if not tarDict:
+                #authentication failed, display tag as invalid
+                handle_invalid_tag(
+                    tag_id=tag_id,
+                    epcHex=epcHex,
+                    seen_at=seen_at,
+                    active_tags=active_tags,
+                    cache=cache,
+                    info_message="'tagAuthenticationResponse' not found.")
+                continue 
 
+            # Save tagAuthenticationResponse variables:
+            messageHex=tarDict.get("messageHex") # Challenge that was sent to the tag, will always be included.
+            responseHex=tarDict.get("responseHex") # Always will be included, but will be an empty string if failed/invalid.
+            tidHex=tarDict.get("tidHex") # May be empty, if so, use the tag_id variable from above.
 
-            active_tags.sync_seen([tag_id], seen_at=seen_at)
+           # Final checks:
+            if responseHex == "":
+                #authentication failed, display tag as invalid
+                handle_invalid_tag(
+                    tag_id=tag_id,
+                    epcHex=epcHex,
+                    seen_at=seen_at,
+                    active_tags=active_tags,
+                    cache=cache,
+                    info_message="'responseHex' not found.")
+                continue
 
-            # if its new tag
-            if cache.get(tag_id) is None:
-                auth, info = ias_lookup(tag_id) ##send IAS parameter here
-                cache.set(tag_id, auth, info) ## IAS results
-                upsert_latest_tag(tag_id=tag_id, seen_at=seen_at, auth=auth, info=info) #sending to database
+            # If tidHex was not found inside tagAuthenticationResponse, use tag_id
+            if not tidHex:
+                tidHex = tag_id
+            
+
+            # ----- AUTHENTICATION RESPONSE VALID -----
+            # Create auth_payload:
+            auth_payload = AuthPayload(
+                    messageHex=messageHex,
+                    responseHex=responseHex,
+                    tidHex=tidHex
+                )
+            
+            # Update active live tags
+            active_tags.sync_seen(
+                [tag_id], seen_at=seen_at)
+            
+
+            # --- SENDING TO IAS ---
+            # Check if this event's tag_id exists in the cache:
+            if cache.get(tag_id) is None: 
+                
+                # Send event payload to clients/ias_services.py
+                auth, info = ias_lookup(tag_id) 
+                # returns auth(bool): true if valid; else false
+                #         info(str) : information about the authentication request
+
+                cache.set(tag_id, auth, info)   # IAS results
+                upsert_latest_tag(tag_id=tag_id, seen_at=seen_at, auth=auth, info=info) # Sending to database
 
     finally:
         await client.aclose()

@@ -9,7 +9,11 @@ from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
-DATA_FILE = Path(__file__).with_name("t7datastream.ndjson")
+# datastream1 = tagAuthenticationResponse DISABLED
+# datasteam2 = tagAuthenticationResponse ENABLED but INCOMPATIBLE
+# datastream3 = tagAuthenticationResponse ENABLED & COMPATIBLE
+
+DATA_FILE = Path(__file__).with_name("datastream2.ndjson")#use "datastream1", "datastream2", or "datastream3"
 
 
 async def ndjson_line_stream(loop: bool = True, rate_hz: float = 20.0) -> AsyncIterator[bytes]:

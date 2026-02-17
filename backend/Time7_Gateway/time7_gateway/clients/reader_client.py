@@ -95,13 +95,17 @@ async def run_reader_stream(app):
                     seen_at=seen_at,
                     active_tags=active_tags,
                     cache=cache,
-                    info_message="'tagAuthenticationResponse' not found.")
+                    info_message="'tagAuthenticationResponse' not found/enabled.")
                 continue 
 
             # Save tagAuthenticationResponse variables:
             messageHex=tarDict.get("messageHex") # Challenge that was sent to the tag, will always be included.
             responseHex=tarDict.get("responseHex") # Always will be included, but will be an empty string if failed/invalid.
             tidHex=tarDict.get("tidHex") # May be empty, if so, use the tag_id variable from above.
+            
+            # If tidHex was not found inside tagAuthenticationResponse, use tag_id
+            if not tidHex:
+                tidHex = tag_id
 
            # Final checks:
             if responseHex == "":
@@ -114,11 +118,6 @@ async def run_reader_stream(app):
                     cache=cache,
                     info_message="'responseHex' not found.")
                 continue
-
-            # If tidHex was not found inside tagAuthenticationResponse, use tag_id
-            if not tidHex:
-                tidHex = tag_id
-            
 
             # ----- AUTHENTICATION RESPONSE VALID -----
             # Create auth_payload:

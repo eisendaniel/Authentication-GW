@@ -138,7 +138,7 @@ async def run_reader_stream(app):
             if cache.get(tag_id) is None: 
                 
                 # Send event payload to clients/ias_services.py
-                auth, info = ias_lookup(tag_id) 
+                auth, info = ias_lookup(auth_payload) 
                 # returns auth(bool): true if valid; else false
                 #         info(str) : information about the authentication request
 

@@ -24,12 +24,12 @@ export function NewProduct({ item, onClose }) {
   const BUCKET = "product-photos"; 
 
 const handleRegister = async () => {
-  if (!item?.id) return Alert.alert("Missing tid", "No tag id found.");
+  if (!item?.tidHex) return Alert.alert("Missing tid", "No tag id found.");
 
   setSubmitting(true);
   try {
-    const tid = String(item.id);
-    const epc = item?.info ? String(item.info) : null;
+    const tid = String(item.tidHex);
+    const epc = item?.epcHex ? String(item.epcHex) : null;
 
     const { error: infoError } = await supabase
       .from("product_info")
@@ -105,11 +105,11 @@ const handleRegister = async () => {
 
           <View style={styles.infoRow}>
               <Text style={styles.label}> epc </Text>
-              <Text style={styles.valueBold}>{item?.info}</Text>
+              <Text style={styles.valueBold}>{item?.epcHex}</Text>
           </View>
           <View style={styles.infoRow}>
               <Text style={styles.label}> tid </Text>
-              <Text style={styles.valueBold}>{item?.id}</Text>
+              <Text style={styles.valueBold}>{item?.tidHex}</Text>
           </View>
 
           <View style={styles.info}>

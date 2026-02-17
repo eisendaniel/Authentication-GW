@@ -12,15 +12,16 @@ def active_tags(request: Request):
     results: list[ScanResult] = []
 
     for t in active_tags.get_active():
-        cached = cache.get(t.tag_id)
+        cached = cache.get(t.tidHex)
         if cached is None:
             continue
 
         auth, info = cached
         results.append(
             ScanResult(
-                id=t.tag_id,
-                date=t.last_seen,
+                tidHex=t.tidHex,
+                epcHex=t.epcHex,
+                first_seen=t.first_seen,
                 auth=auth,
                 info=info,
             )

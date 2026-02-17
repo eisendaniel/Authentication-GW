@@ -63,22 +63,21 @@ export default function Dashboard() {
           showsVerticalScrollIndicator={false}
         >
           {scans.map((item) => (
-            <ItemCard
-              key={item.id}
-              auth={item.auth}
-              date={item.date}
-              info={item.info}
-              id={item.id}
-              registered={registeredTids.includes(String(item.id))}
-
-
-              onPress={() => {
-                const isRegistered = registeredTids.includes(String(item.id));
-                setSelectedRegistered(isRegistered);
-                setSelectedItem(item);
-                setIsOpen(true);
-              }}
-            />
+          <ItemCard
+            key={item.tidHex}
+            auth={item.auth}
+            firstSeen={item.first_seen}
+            info={item.info}
+            tidHex={item.tidHex}
+            epcHex={item.epcHex}
+            registered={registeredTids.includes(String(item.tidHex))}
+            onPress={() => {
+              const isRegistered = registeredTids.includes(String(item.tidHex));
+              setSelectedRegistered(isRegistered);
+              setSelectedItem(item);
+              setIsOpen(true);
+            }}
+          />
           ))}
         </ScrollView>
       )}

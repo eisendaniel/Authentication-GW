@@ -1,25 +1,21 @@
-
-
 from typing import Dict, Tuple
+from time7_gateway.models.schemas import AuthPayload
+from time7_gateway.utilities.simulate_encryption import generate_response
 
+def mock_ias_lookup(auth_payload: AuthPayload) -> Tuple[bool, str]:
+    tidHex = auth_payload.tidHex # The tag_id
+    messageHex = auth_payload.messageHex # The challenge message sent to the tag from the Reader
+    responseHex = auth_payload.responseHex # The response given by the tag
+    # TO AUTHENTICATE:
+    # 1. IAS holds the correct encryption key for the tag 
+    # 2. Checks if the tag gave the correct response to the challenge
+    # 3. Returns True if the tag returned the correct response, else returns False
 
-MOCK_IAS_DB: Dict[str, str] = {
-    "90127838712": "Nike Air Max 90",
-    "76834512904": "Adidas Ultraboost 22",
-    "55201983746": "Puma Suede Classic",
-    "83467021955": "New Balance 990v6",
-    "19628403751": "Converse Chuck 70",
-}
+    # encryption key (fake, dummy key) = add together every digit of tidHex, caesar cipher each digit for the challenge forward by that amount --> response
+    expected_response = generate_response(tidHex, messageHex)
 
-
-def mock_ias_lookup(tag_id: str) -> Tuple[bool, str]:
-
-    key = str(tag_id).strip()
-    if not key:
-        return False, "Invalid tag"
-
-    info = MOCK_IAS_DB.get(key)
-    if info is not None:
-        return True, info
-
-    return False, "Invalid tag"
+    if expected_response == responseHex:
+        return True, "IAS: Tag is Valid."
+    else:
+        return False, "IAS: 'responseHex' did not match expected response."
+    

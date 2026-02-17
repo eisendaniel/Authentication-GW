@@ -28,3 +28,7 @@ def active_tags(request: Request):
         )
 
     return results
+
+@router.get("/reader-status")
+def reader_status(request: Request):
+    return {"connected": request.app.state.reader_connected}

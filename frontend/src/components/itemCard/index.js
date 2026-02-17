@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,          
     flexWrap: "wrap",      
     maxWidth: "100%",
+    marginTop:8,
   },
 
 

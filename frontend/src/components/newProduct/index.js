@@ -14,7 +14,7 @@ import SubmitButton from "../submitButton";
 
 
 
-export function NewProduct({ item, onClose }) {
+export function NewProduct({ item, onClose, onRegistered }) {
   const [date, setDate] = useState(() => todayDate());
   const [imageUri, setImageUri] = useState(null);
   const [description, setDescription] = useState("");
@@ -61,6 +61,7 @@ const handleRegister = async () => {
     }
 
     Alert.alert("Registered", "Saved to database.");
+    onRegistered?.(tid);
     onClose?.();
   } catch (e) {
     Alert.alert("Register failed", e?.message ?? String(e));

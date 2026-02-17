@@ -191,7 +191,7 @@ export function ViewItem({ item, onClose }) {
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>tid</Text>
-          <Text style={styles.valueBold}>{product?.epc ?? item?.epcHex ?? "-"}</Text>
+          <Text style={styles.valueBold}>{product?.tid ?? item?.tidHex ?? "-"}</Text>
         </View>
 
         {loading ? (

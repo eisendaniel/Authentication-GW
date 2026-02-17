@@ -25,11 +25,11 @@ def reader_events(request: Request, payload: Any = Body(...)):
         now = datetime.now(timezone.utc)
 
         tidHex = payload.get("tidHex") or []
-        tags_seen = len(tag_ids)
+        tags_seen = len(tidHex)
 
-        active_tags.sync_seen(tag_ids, seen_at=now)
+        active_tags.sync_seen(tidHex, seen_at=now)
 
-        for tidHex in tag_ids:
+        for tidHex in tidHex:
             tidHex = str(tidHex)
             if cache.get(tidHex) is None:
                 auth, info = ias_lookup(tidHex)

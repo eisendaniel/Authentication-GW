@@ -13,10 +13,12 @@ class ImpinjReaderClient:
         self.base_url = base_url 
         self._client = httpx.AsyncClient(auth=(username, password), timeout=None)
 
-    async def stream_events(self):
+    async def stream_events(self, on_connect=None):
         url = f"{self.base_url}/data/stream" 
         async with self._client.stream("GET", url) as r:
             r.raise_for_status()
+            if on_connect:
+                on_connect()
             async for line in r.aiter_lines():
                 if not line:
                     continue
@@ -60,13 +62,20 @@ async def run_reader_stream(app):
 
     client = ImpinjReaderClient(reader_base_url, reader_user, reader_password)
 
+    
+
     active_tags = app.state.active_tags
     cache = app.state.tag_info_cache
     ias_lookup = app.state.ias_lookup
 
+    # reader status flag
+    app.state.reader_connected = False
+    def mark_connected():
+        app.state.reader_connected = True
+
     try:
         # Subscribe to data-stream
-        async for ev in client.stream_events():
+        async for ev in client.stream_events(on_connect=mark_connected):
             # Skip if not a valid tagInventoryEvent
             if ev.get("eventType") != "tagInventory":
                 continue
@@ -152,3 +161,4 @@ async def run_reader_stream(app):
 
     finally:
         await client.aclose()
+        app.state.reader_connected = False #reader status

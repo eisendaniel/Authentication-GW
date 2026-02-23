@@ -15,7 +15,7 @@ def clear_screen() -> None:
 def main() -> None:
     while True:
         try:
-            r = requests.get(URL, timeout=2)
+            r = requests.get(URL, timeout=60)
             r.raise_for_status()
             data = r.json()
 
@@ -27,7 +27,7 @@ def main() -> None:
             print(f"Count: {data.get('count', len(items))}\n")
 
             for t in items:
-                print(f"- {t.get('id')} | first={t.get('first_seen')} | last={t.get('last_seen')}")
+                print(f"- {t.get('tidHex')} | epcHex={t.get('epcHex')} | firstSeen={t.get('first_seen')}")
 
             print("\nCTRL+C to stop.")
             time.sleep(REFRESH_SECONDS)

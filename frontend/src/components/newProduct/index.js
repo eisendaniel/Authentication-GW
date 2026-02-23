@@ -14,7 +14,7 @@ import SubmitButton from "../submitButton";
 
 
 
-export function NewProduct({ item, onClose }) {
+export function NewProduct({ item, onClose, onRegistered }) {
   const [date, setDate] = useState(() => todayDate());
   const [imageUri, setImageUri] = useState(null);
   const [description, setDescription] = useState("");
@@ -24,24 +24,26 @@ export function NewProduct({ item, onClose }) {
   const BUCKET = "product-photos"; 
 
 const handleRegister = async () => {
-  if (!item?.id) return Alert.alert("Missing tid", "No tag id found.");
+
+  if (!item?.epcHex) return Alert.alert("Missing epc", "No EPC found.");
 
   setSubmitting(true);
   try {
-    const tid = String(item.id);
-    const epc = item?.info ? String(item.info) : null;
+    const epc = String(item.epcHex);
 
     const { error: infoError } = await supabase
       .from("product_info")
       .upsert(
-        { tid, epc, description, origin, produced_on: date || null },
-        { onConflict: "tid" }
+        { epc, description, origin, produced_on: date || null },
+        { onConflict: "epc" }
       );
+
 
     if (infoError) throw infoError;
 
     if (imageUri) {
-      const path = `${tid}/${Date.now()}.jpg`;
+      const path = `${epc}/${Date.now()}.jpg`;
+
       const blob = await (await fetch(imageUri)).blob();
 
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -55,12 +57,14 @@ const handleRegister = async () => {
 
       const { error: photoError } = await supabase
         .from("product_photo")
-        .insert({ tid, photo_url: photoUrl }); 
+        .insert({ epc, photo_url: photoUrl });
+
 
       if (photoError) throw photoError;
     }
 
     Alert.alert("Registered", "Saved to database.");
+    onRegistered?.(epc);
     onClose?.();
   } catch (e) {
     Alert.alert("Register failed", e?.message ?? String(e));
@@ -105,11 +109,7 @@ const handleRegister = async () => {
 
           <View style={styles.infoRow}>
               <Text style={styles.label}> epc </Text>
-              <Text style={styles.valueBold}>{item?.info}</Text>
-          </View>
-          <View style={styles.infoRow}>
-              <Text style={styles.label}> tid </Text>
-              <Text style={styles.valueBold}>{item?.id}</Text>
+              <Text style={styles.valueBold}>{item?.epcHex}</Text>
           </View>
 
           <View style={styles.info}>

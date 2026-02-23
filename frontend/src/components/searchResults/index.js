@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export function SearchResults({ }) {
-
+export function SearchResults({ product, photoUrl }) {
+  if (!product) return null;
 
 
 
@@ -12,24 +12,24 @@ export function SearchResults({ }) {
       <View style={styles.card}>
 
         <View style={styles.imgBox}>
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.img} resizeMode="contain" />
+          ) : (
             <Ionicons name="image-outline" size={28} color="#FE751A" />
+          )}
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.label}>epc</Text>
-          <Text style={styles.valueBold}> EIUWH218372198372189 </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>tid</Text>
-          <Text style={styles.valueBold}>2298392847398247</Text>
+          <Text style={styles.valueBold}>{product?.epc ?? "-"}</Text>
         </View>
 
         <View style={styles.info}>
-              <Text style={styles.value}>I put descriptions here and here and here weee</Text>
+              <Text style={styles.value}>{product?.description ?? "-"}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.valueBold}>Malaysia</Text>
-              <Text style={styles.valueBold}>1992.09.05</Text>
+              <Text style={styles.valueBold}>{product?.origin ?? "-"}</Text>
+              <Text style={styles.valueBold}>{product?.produced_on ?? "-"}</Text>
         </View>
 
       </View>

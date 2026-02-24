@@ -4,3 +4,10 @@ pydantic
 python-dotenv
 httpx
 supabase
+SQLAlchemy
+asyncpg 
+alembic 
+python-dotenv
+pytest
+pytest-asyncio
+mypy

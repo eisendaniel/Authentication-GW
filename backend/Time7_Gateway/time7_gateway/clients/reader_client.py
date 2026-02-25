@@ -82,7 +82,7 @@ async def run_reader_stream(app):
     try:
         
         # Subscribe to data-stream
-        async for ev in client.stream_events(on_connect=mark_connected):
+        async for ev in client.stream_events(on_connect=mark_connected): 
         #async for ev in client.stream_events():
             # Skip if not a valid tagInventoryEvent
             
